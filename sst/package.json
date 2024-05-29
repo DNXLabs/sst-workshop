@@ -1,0 +1,29 @@
+{
+  "name": "sst-workshop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "sst secrets load .env && sst dev",
+    "build": "sst build",
+    "deploy": "sst deploy",
+    "remove": "make secret_remove && sst remove",
+    "console": "sst console",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.4",
+    "@types/fs-extra": "^11.0.4",
+    "aws-cdk-lib": "2.142.1",
+    "constructs": "10.3.0",
+    "sst": "^2.42.0",
+    "typescript": "^5.4.5"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "prisma": "^5.14.0"
+  }
+}

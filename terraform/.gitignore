@@ -1,0 +1,8 @@
+.env
+.env.auth
+.env.assume
+.terraform
+.terraform-plan*
+generated/
+.one.workspace
+.DS_Store

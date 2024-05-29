@@ -1,0 +1,19 @@
+aws_account_id:
+environment_name: "staging"
+account_name: "labs"
+
+rds:
+  - name: workshop_db
+    identifier: workshop
+    user: workshop
+    audit_query_log: false
+    allocated_storage: 100
+    storage_type: gp3
+    engine: postgres
+    engine_version: 16
+    engine_major: "16"
+    engine_family: "postgres16"
+    instance_class: db.t3.micro
+    backup_retention_period: 14
+    enabled_logs_exports: ["postgresql", "upgrade"]
+    db_port: 5432
