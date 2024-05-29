@@ -7,7 +7,7 @@ export default {
     return {
       name: "sst-workshop",
       region: "ap-southeast-2",
-      profile: ""
+      profile: "dev"
     };
   },
   stacks(app) {
