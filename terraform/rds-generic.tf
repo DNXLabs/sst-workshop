@@ -151,21 +151,6 @@ resource "aws_ssm_parameter" "rds_password_generic" {
   value       = random_string.db_pass["${each.value.name}"].result
 }
 
-resource "aws_secretsmanager_secret" "rds_secrets_generic" {
-  for_each    = { for db in try(local.workspace.rds, []) : db.name => db }
-  name        = "/rds/${local.workspace["environment_name"]}/${each.value.identifier}/CREDENTIALS"
-  description = "RDS Secrets"
-}
-
-resource "aws_secretsmanager_secret_version" "rds_secrets_version_generic" {
-  for_each  = { for db in try(local.workspace.rds, []) : db.name => db }
-  secret_id = aws_secretsmanager_secret.rds_secrets_generic["${each.value.name}"].arn
-  secret_string = jsonencode({
-    username = each.value.user
-    password = random_string.db_pass["${each.value.name}"].result
-  })
-}
-
 locals {
   flattened_log_groups = flatten([
     for db in try(local.workspace.rds, []) : [
@@ -184,16 +169,6 @@ resource "aws_cloudwatch_log_group" "rds_log_groups_generic" {
   retention_in_days = 1
 }
 
-# resource "aws_cloudwatch_log_subscription_filter" "log_subscription_generic" {
-#   for_each = {
-#     for index, entry in local.flattened_log_groups : "${entry.db_identifier}-${entry.log_group}" => entry
-#   }
-#   name            = "log-subscription-filter"
-#   log_group_name  = aws_cloudwatch_log_group.rds_log_groups_generic["${each.value.db_identifier}-${each.value.log_group}"].name
-#   filter_pattern  = ""
-#   role_arn        = local.log_subscription_filter_role_arn
-#   destination_arn = local.log_subscription_filter_destination_arn
-# }
 
 resource "aws_security_group" "security_groups_generic" {
   for_each = { for db in try(local.workspace.rds, []) : db.name => db }
@@ -217,95 +192,4 @@ resource "aws_security_group_rule" "rds_inbound_vpn_generic" {
   cidr_blocks       = tolist([local.vpn_cidr])
   security_group_id = aws_security_group.security_groups_generic["${each.value.name}"].id
   description       = "VPN Access"
-}
-
-
-
-
-resource "aws_db_option_group" "rds_option_group_generic" {
-  for_each    = { for db in try(local.workspace.rds, []) : db.name => db }
-  name        = "${local.workspace["environment_name"]}-${each.value.identifier}"
-  engine_name = each.value.engine
-
-  major_engine_version = each.value.engine_major
-
-  dynamic "option" {
-    for_each = each.value.engine == "mysql" ? [1] : []
-    content {
-      option_name = "MARIADB_AUDIT_PLUGIN"
-      option_settings {
-        name  = "SERVER_AUDIT_EVENTS"
-        value = "CONNECT"
-      }
-    }
-
-  }
-}
-
-
-resource "aws_db_parameter_group" "rds_param_group_generic" {
-  for_each = { for db in try(local.workspace.rds, []) : db.name => db }
-  name     = "${local.workspace["environment_name"]}-${each.value.identifier}"
-  family   = each.value.engine_family
-
-
-  dynamic "parameter" {
-    for_each = try(each.value.binlog_format, null) != null ? [each.value.binlog_format] : []
-
-    content {
-      name  = "binlog_format"
-      value = each.value.binlog_format
-    }
-  }
-
-  dynamic "parameter" {
-    for_each = try(each.value.log_bin_trust_function_creators, null) != null ? [each.value.log_bin_trust_function_creators] : []
-
-    content {
-      name  = "log_bin_trust_function_creators"
-      value = 1
-    }
-  }
-
-  dynamic "parameter" {
-    for_each = try(each.value.sql_mode, null) != null ? ["sql_mode"] : []
-
-    content {
-      name  = "sql_mode"
-      value = "NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
-    }
-  }
-
-
-  dynamic "parameter" {
-    for_each = try(each.value.log_output, null) != null ? ["log_output"] : []
-    content {
-      name  = "log_output"
-      value = "FILE"
-    }
-  }
-
-  dynamic "parameter" {
-    for_each = try(each.value.slow_query_log, null) != null ? [each.value.slow_query_log] : []
-    content {
-      name  = "slow_query_log"
-      value = each.value.slow_query_log
-    }
-  }
-
-  dynamic "parameter" {
-    for_each = try(each.value.general_query_log, null) != null ? [each.value.general_query_log] : []
-    content {
-      name  = "general_log"
-      value = each.value.general_query_log
-    }
-  }
-
-  dynamic "parameter" {
-    for_each = try(each.value.long_query_time, null) != null ? [each.value.long_query_time] : []
-    content {
-      name  = "long_query_time"
-      value = each.value.long_query_time
-    }
-  }
 }
