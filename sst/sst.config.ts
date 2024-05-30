@@ -1,6 +1,6 @@
 import { SSTConfig } from "sst";
 import { ApiStack } from "./stacks/PrismaStack.js";
-
+import { API } from "./stacks/SimpleLambdaApi.js";
 
 export default {
   config(_input) {
@@ -11,7 +11,7 @@ export default {
     };
   },
   stacks(app) {
-    // app.stack(API);
+    app.stack(API);
     app.stack(ApiStack)
   }
 } satisfies SSTConfig;

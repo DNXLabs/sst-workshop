@@ -1,0 +1,8 @@
+{
+  "rph-sst-workshop-ApiStack": {
+    "apiurl": "https://3fn4lq7l95.execute-api.ap-southeast-2.amazonaws.com"
+  },
+  "rph-sst-workshop-API": {
+    "ApiEndpoint": "https://xmf8yiq2gd.execute-api.ap-southeast-2.amazonaws.com"
+  }
+}
