@@ -9,7 +9,8 @@
     "deploy": "sst deploy",
     "remove": "make secret_remove && sst remove",
     "console": "sst console",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "migrate": "npx prisma migrate dev --name init"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",
